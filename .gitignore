@@ -1,0 +1,17 @@
+# .NET build outputs
+bin/
+obj/
+*.dll
+*.pdb
+*.cache
+
+# Visual Studio / tooling
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# OS files
+Thumbs.db
+Desktop.ini

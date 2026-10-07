@@ -1,0 +1,134 @@
+﻿@page "/"
+@using ChordVisualizer.Core
+@using ChordVisualizer.Core.Voicings
+
+<PageTitle>Chord Visualizer</PageTitle>
+
+<h1>Chord Visualizer</h1>
+
+<form class="sticky-chord-controls" @onsubmit="ShowChord" @onsubmit:preventDefault>
+    <label for="chord-name">Chord</label>
+    <input id="chord-name" @bind="ChordText" @bind:event="oninput" placeholder="Enter chord (e.g. C/D or Fmaj7)" />
+    <label for="fret-span">Fret span</label>
+    <input id="fret-span" type="number" min="1" max="12" step="1" @bind="FretSpan" @bind:event="oninput" />
+    <fieldset class="fret-range-filter">
+        <legend>Lowest fretted fret</legend>
+        <label for="minimum-lowest-fret">From</label>
+        <input id="minimum-lowest-fret" type="number" min="0" max="22" step="1" @bind="MinimumLowestFret" @bind:event="oninput" />
+        <label for="maximum-lowest-fret">To</label>
+        <input id="maximum-lowest-fret" type="number" min="0" max="22" step="1" @bind="MaximumLowestFret" @bind:event="oninput" />
+    </fieldset>
+    <label for="triad-only">Triad voicings (3 notes on consecutive strings)</label>
+    <input id="triad-only" type="checkbox" @bind="OnlyConsecutiveTriadVoicings" />
+    <label for="show-note-names">Show note names</label>
+    <input id="show-note-names" type="checkbox" @bind="ShowNoteNames" />
+    <button type="submit">Show voicings</button>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(ErrorMessage))
+{
+    <p role="alert">@ErrorMessage</p>
+}
+
+@if (VoicingFamilies is { Count: > 0 })
+{
+    <table class="voicing-families-table">
+        <thead>
+            <tr>
+                <th scope="col">Best voicing</th>
+                <th scope="col">Similar voicings</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var family in VoicingFamilies)
+            {
+                var expanded = ExpandedFamilies.Contains(family);
+                <tr>
+                    <td>
+                        <h2>@family.BestVoicing.Chord.Text (@family.BestVoicing.Label)</h2>
+                        <pre>@ChordDiagramRenderer.Render(family.BestVoicing, ShowNoteNames)</pre>
+                        @if (family.Alternatives.Count > 0)
+                        {
+                            <button type="button"
+                                    aria-expanded="@expanded"
+                                    @onclick="() => ToggleAlternatives(family)">
+                                @(expanded ? "Hide similar voicings" : $"Show {family.Alternatives.Count} similar voicings")
+                            </button>
+                        }
+                    </td>
+                    <td>
+                        @if (expanded)
+                        {
+                            <div class="voicing-alternatives">
+                                @foreach (var alternative in family.Alternatives)
+                                {
+                                    <section>
+                                        <h3>@alternative.Label</h3>
+                                        <pre>@ChordDiagramRenderer.Render(alternative, ShowNoteNames)</pre>
+                                    </section>
+                                }
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (VoicingFamilies is { Count: 0 })
+{
+    <p>No voicings match these filters.</p>
+}
+
+@code {
+    private string ChordText { get; set; } = "C";
+    private int FretSpan { get; set; } = 5;
+    private int MinimumLowestFret { get; set; }
+    private int MaximumLowestFret { get; set; } = 22;
+    private bool OnlyConsecutiveTriadVoicings { get; set; }
+    private bool ShowNoteNames { get; set; }
+    private IReadOnlyList<ChordVoicingFamily>? VoicingFamilies { get; set; }
+    private HashSet<ChordVoicingFamily> ExpandedFamilies { get; } = new();
+    private string? ErrorMessage { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ShowChord();
+    }
+
+    private void ShowChord()
+    {
+        try
+        {
+            FretSpan = Math.Clamp(FretSpan, 1, 12);
+            MinimumLowestFret = Math.Clamp(MinimumLowestFret, 0, 22);
+            MaximumLowestFret = Math.Clamp(MaximumLowestFret, 0, 22);
+            if (MinimumLowestFret > MaximumLowestFret)
+                throw new ArgumentException("The lowest-fret range must start at or below its end.");
+
+            var chord = ChordSymbol.Parse(ChordText);
+            var generator = new VoicingGenerator { MaxFretSpan = FretSpan - 1 };
+            VoicingFamilies = generator.GenerateVoicingFamilies(
+                chord,
+                MinimumLowestFret,
+                MaximumLowestFret,
+                OnlyConsecutiveTriadVoicings);
+            ExpandedFamilies.Clear();
+            ErrorMessage = null;
+        }
+        catch (Exception ex)
+        {
+            VoicingFamilies = null;
+            ExpandedFamilies.Clear();
+            ErrorMessage = ex.Message;
+        }
+    }
+
+    private void ToggleAlternatives(ChordVoicingFamily family)
+    {
+        if (!ExpandedFamilies.Add(family))
+        {
+            ExpandedFamilies.Remove(family);
+        }
+    }
+}
