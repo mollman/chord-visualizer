@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{ED5AC0E0-F130-493C-A07A-0A5C718552DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChordVisualizer.Core", "src\ChordVisualizer.Core\ChordVisualizer.Core.csproj", "{0ED40B33-41F9-42A6-819A-B7F9FDCE9E2A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChordVisualizer.Web", "src\ChordVisualizer.Web\ChordVisualizer.Web.csproj", "{BFF19236-F897-4D72-8A08-0C610267BC15}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{3E2DFC28-5FC1-4EAC-BE84-45BBEA453ADB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChordVisualizer.Tests", "tests\ChordVisualizer.Tests\ChordVisualizer.Tests.csproj", "{23EFB96A-A7AE-4D30-8110-E167FD801165}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0ED40B33-41F9-42A6-819A-B7F9FDCE9E2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ED40B33-41F9-42A6-819A-B7F9FDCE9E2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ED40B33-41F9-42A6-819A-B7F9FDCE9E2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ED40B33-41F9-42A6-819A-B7F9FDCE9E2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFF19236-F897-4D72-8A08-0C610267BC15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFF19236-F897-4D72-8A08-0C610267BC15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFF19236-F897-4D72-8A08-0C610267BC15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFF19236-F897-4D72-8A08-0C610267BC15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23EFB96A-A7AE-4D30-8110-E167FD801165}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23EFB96A-A7AE-4D30-8110-E167FD801165}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23EFB96A-A7AE-4D30-8110-E167FD801165}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23EFB96A-A7AE-4D30-8110-E167FD801165}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0ED40B33-41F9-42A6-819A-B7F9FDCE9E2A} = {ED5AC0E0-F130-493C-A07A-0A5C718552DD}
+		{BFF19236-F897-4D72-8A08-0C610267BC15} = {ED5AC0E0-F130-493C-A07A-0A5C718552DD}
+		{23EFB96A-A7AE-4D30-8110-E167FD801165} = {3E2DFC28-5FC1-4EAC-BE84-45BBEA453ADB}
+	EndGlobalSection
+EndGlobal
