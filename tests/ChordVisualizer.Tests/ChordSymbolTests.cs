@@ -24,4 +24,15 @@ public class ChordSymbolTests
         Assert.Equal(PitchClass.E, chord.BassOverride);
         Assert.Equal("C/E", chord.Text);
     }
+
+    [Theory]
+    [InlineData("C9", "9")]
+    [InlineData("Cdom9", "9")]
+    public void ParseDatabaseChord_PreservesItsSuffix(string text, string expectedSuffix)
+    {
+        var chord = ChordSymbol.Parse(text);
+
+        Assert.Equal(ChordQuality.Other, chord.Quality);
+        Assert.Equal(expectedSuffix, chord.Suffix);
+    }
 }

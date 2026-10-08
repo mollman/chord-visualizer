@@ -15,8 +15,7 @@ public static class ChordQualityMapper
             ChordQuality.Minor7     => "m7",
             ChordQuality.Add9       => "add9",
             ChordQuality.Sus4       => "sus4",
-            // extend as needed
-            _ => "major"
+            _ => throw new ArgumentOutOfRangeException(nameof(quality), quality, "The generated voicing engine does not support this chord quality.")
         };
     }
 }

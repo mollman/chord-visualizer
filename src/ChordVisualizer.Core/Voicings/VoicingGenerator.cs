@@ -133,28 +133,10 @@ public sealed class VoicingGenerator
         if (minimumLowestFret < 0 || maximumLowestFret > 22 || minimumLowestFret > maximumLowestFret)
             throw new ArgumentOutOfRangeException(nameof(minimumLowestFret), "The lowest-fret range must be within 0-22 and ordered from minimum to maximum.");
 
-        return GenerateVoicings(chord, onlyConsecutiveTriadVoicings)
-            .GroupBy(GetFamilyKey)
-            .Select(group => new ChordVoicingFamily(group.First(), group.Skip(1)))
+        return ChordVoicingFamilyBuilder.Build(GenerateVoicings(chord, onlyConsecutiveTriadVoicings))
             .Where(family => family.BestVoicing.DisplayStartFret >= minimumLowestFret &&
                              family.BestVoicing.DisplayStartFret <= maximumLowestFret)
             .ToList();
-    }
-
-    private static string GetFamilyKey(ChordVoicing voicing)
-    {
-        var frettedPattern = string.Join(",", voicing.Positions
-            .Where(position => position.State == StringPlayState.Fretted)
-            .OrderBy(position => position.StringIndex)
-            .Select(position => $"{position.StringIndex}:{position.Fret}"));
-        var lowestSoundingPosition = voicing.Positions
-            .Where(position => position.State is StringPlayState.Open or StringPlayState.Fretted)
-            .MinBy(position => position.StringIndex)!;
-        var bassPitch = FretboardPitchMap.GetPitchClass(
-            lowestSoundingPosition.StringIndex,
-            lowestSoundingPosition.Fret!.Value);
-
-        return $"{frettedPattern}|{bassPitch}";
     }
 
     private static int CalculatePlayabilityScore(ChordVoicing voicing)

@@ -7,6 +7,7 @@ public sealed class ChordVoicing
     public ChordSymbol Chord { get; }
     public string Label { get; }
     public IReadOnlyList<StringPosition> Positions { get; }
+    public IReadOnlyList<Barre> Barres { get; }
     public int DisplayStartFret { get; }
     public int DisplayFretSpan { get; }
 
@@ -15,13 +16,28 @@ public sealed class ChordVoicing
         string label,
         IEnumerable<StringPosition> positions,
         int displayStartFret,
-        int displayFretSpan)
+        int displayFretSpan,
+        IEnumerable<Barre>? barres = null)
     {
         Chord = chord;
         Label = label;
         Positions = positions.ToList();
+        Barres = (barres ?? []).ToList();
         DisplayStartFret = displayStartFret;
         DisplayFretSpan = displayFretSpan;
+
+        foreach (var barre in Barres)
+        {
+            for (var stringIndex = barre.StartStringIndex; stringIndex <= barre.EndStringIndex; stringIndex++)
+            {
+                var position = Positions.SingleOrDefault(candidate => candidate.StringIndex == stringIndex);
+                if (position?.State != StringPlayState.Fretted || position.Fret < barre.Fret)
+                    throw new ArgumentException("Each string in a barre must be fretted at or above the barre fret.", nameof(barres));
+
+                if (position.Fret == barre.Fret && position.Finger.HasValue && position.Finger != barre.Finger)
+                    throw new ArgumentException("A barre finger must match any finger assigned to its strings.", nameof(barres));
+            }
+        }
     }
 
     public static ChordVoicing CreateVoicing(ChordSymbol chord, string label)

@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using ChordVisualizer.Core
 @using ChordVisualizer.Core.Voicings
+@inject IChordVoicingProvider VoicingProvider
 
 <PageTitle>Chord Visualizer</PageTitle>
 
@@ -46,7 +47,7 @@
                 <tr>
                     <td>
                         <h2>@family.BestVoicing.Chord.Text (@family.BestVoicing.Label)</h2>
-                        <pre>@ChordDiagramRenderer.Render(family.BestVoicing, ShowNoteNames)</pre>
+                        <div class="chord-diagram">@((MarkupString)SvgChordDiagramRenderer.Render(family.BestVoicing, ShowNoteNames))</div>
                         @if (family.Alternatives.Count > 0)
                         {
                             <button type="button"
@@ -64,7 +65,7 @@
                                 {
                                     <section>
                                         <h3>@alternative.Label</h3>
-                                        <pre>@ChordDiagramRenderer.Render(alternative, ShowNoteNames)</pre>
+                                        <div class="chord-diagram">@((MarkupString)SvgChordDiagramRenderer.Render(alternative, ShowNoteNames))</div>
                                     </section>
                                 }
                             </div>
@@ -107,12 +108,18 @@ else if (VoicingFamilies is { Count: 0 })
                 throw new ArgumentException("The lowest-fret range must start at or below its end.");
 
             var chord = ChordSymbol.Parse(ChordText);
-            var generator = new VoicingGenerator { MaxFretSpan = FretSpan - 1 };
-            VoicingFamilies = generator.GenerateVoicingFamilies(
-                chord,
-                MinimumLowestFret,
-                MaximumLowestFret,
-                OnlyConsecutiveTriadVoicings);
+            var curatedVoicings = GetCuratedVoicings(chord);
+            var generatedVoicings = chord.Quality == ChordQuality.Other
+                ? Array.Empty<ChordVoicing>()
+                : new VoicingGenerator { MaxFretSpan = FretSpan - 1 }
+                    .GenerateVoicingFamilies(
+                    chord,
+                    MinimumLowestFret,
+                    MaximumLowestFret,
+                    OnlyConsecutiveTriadVoicings)
+                    .SelectMany(family => new[] { family.BestVoicing }.Concat(family.Alternatives));
+            VoicingFamilies = ChordVoicingFamilyBuilder.Build(generatedVoicings, curatedVoicings);
+
             ExpandedFamilies.Clear();
             ErrorMessage = null;
         }
@@ -122,6 +129,39 @@ else if (VoicingFamilies is { Count: 0 })
             ExpandedFamilies.Clear();
             ErrorMessage = ex.Message;
         }
+    }
+
+    private IReadOnlyList<ChordVoicing> GetCuratedVoicings(ChordSymbol chord)
+    {
+        return VoicingProvider.GetVoicings(chord)
+            .Where(voicing => voicing.DisplayStartFret >= MinimumLowestFret &&
+                              voicing.DisplayStartFret <= MaximumLowestFret)
+            .Where(IsWithinFretSpan)
+            .Where(voicing => !OnlyConsecutiveTriadVoicings || IsConsecutiveTriad(voicing))
+            .ToList();
+    }
+
+    private bool IsWithinFretSpan(ChordVoicing voicing)
+    {
+        var frets = voicing.Positions
+            .Where(position => position.State == StringPlayState.Fretted)
+            .Select(position => position.Fret!.Value)
+            .ToArray();
+
+        return frets.Length == 0 || frets.Max() - frets.Min() <= FretSpan - 1;
+    }
+
+    private static bool IsConsecutiveTriad(ChordVoicing voicing)
+    {
+        var stringIndexes = voicing.Positions
+            .Where(position => position.State is StringPlayState.Open or StringPlayState.Fretted)
+            .Select(position => position.StringIndex)
+            .Order()
+            .ToArray();
+
+        return stringIndexes.Length == 3 &&
+               stringIndexes[1] == stringIndexes[0] + 1 &&
+               stringIndexes[2] == stringIndexes[1] + 1;
     }
 
     private void ToggleAlternatives(ChordVoicingFamily family)

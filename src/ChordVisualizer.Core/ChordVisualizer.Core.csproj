@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Data\chords-db-guitar.json" LogicalName="ChordVisualizer.Core.Data.chords-db-guitar.json" />
+  </ItemGroup>
+
 </Project>

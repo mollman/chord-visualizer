@@ -26,7 +26,8 @@ public enum ChordQuality
     Major7,
     Minor7,
     Add9,
-    Sus4
+    Sus4,
+    Other
 }
 
 public enum StringPlayState
