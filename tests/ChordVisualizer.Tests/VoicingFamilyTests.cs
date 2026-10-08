@@ -141,12 +141,44 @@ public class VoicingFamilyTests
         Assert.Empty(families);
     }
 
+    [Fact]
+    public void BuildFamilies_PrioritizesAllCuratedEmaj7PositionsAndRetainsGeneratedFamilies()
+    {
+        using var provider = new ChordsDbChordVoicingProvider();
+        var chord = ChordSymbol.Parse("Emaj7");
+        var curatedVoicings = provider.GetVoicings(chord);
+        var generatedVoicings = new VoicingGenerator()
+            .GenerateVoicingFamilies(chord)
+            .SelectMany(family => new[] { family.BestVoicing }.Concat(family.Alternatives))
+            .ToList();
+        var families = ChordVoicingFamilyBuilder.Build(generatedVoicings, curatedVoicings);
+        var mergedSignatures = families
+            .SelectMany(family => new[] { family.BestVoicing }.Concat(family.Alternatives))
+            .Select(GetVoicingSignature)
+            .ToHashSet(StringComparer.Ordinal);
+
+        Assert.Equal(4, curatedVoicings.Count);
+        Assert.Equal(4, families.Count(family => family.BestVoicing.Label.StartsWith("Position ", StringComparison.Ordinal)));
+        Assert.True(families.Count > 4);
+        Assert.All(curatedVoicings, curated =>
+            Assert.Contains(families, family => ReferenceEquals(family.BestVoicing, curated)));
+        Assert.All(generatedVoicings, generated =>
+            Assert.Contains(GetVoicingSignature(generated), mergedSignatures));
+    }
+
     private static string GetFrettedSignature(ChordVoicing voicing)
     {
         return string.Join(",", voicing.Positions
             .Where(position => position.State == StringPlayState.Fretted)
             .OrderBy(position => position.StringIndex)
             .Select(position => $"{position.StringIndex}:{position.Fret}"));
+    }
+
+    private static string GetVoicingSignature(ChordVoicing voicing)
+    {
+        return string.Join(",", voicing.Positions
+            .OrderBy(position => position.StringIndex)
+            .Select(position => $"{position.StringIndex}:{position.State}:{position.Fret}"));
     }
 
     private static string GetFamilySignature(ChordVoicingFamily family)

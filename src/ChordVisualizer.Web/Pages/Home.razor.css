@@ -36,9 +36,9 @@
     margin: 0 0 0.5rem;
 }
 
-.voicing-families-table pre {
+.chord-diagram {
     margin-bottom: 0.75rem;
-    width: max-content;
+    max-width: 15rem;
 }
 
 .voicing-alternatives {
