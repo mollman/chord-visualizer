@@ -28,7 +28,7 @@ Hosts the repo on GitHub
 
 🧱 Architecture Overview
 1. Core Library — ChordVisualizer.Core
-A .NET 8 class library containing:
+A .NET 10 class library containing:
 
 Chord theory models
 

@@ -8,22 +8,42 @@
 <h1>Chord Visualizer</h1>
 
 <form class="sticky-chord-controls" @onsubmit="ShowChord" @onsubmit:preventDefault>
-    <label for="chord-name">Chord</label>
-    <input id="chord-name" @bind="ChordText" @bind:event="oninput" placeholder="Enter chord (e.g. C/D or Fmaj7)" />
-    <label for="fret-span">Fret span</label>
-    <input id="fret-span" type="number" min="1" max="12" step="1" @bind="FretSpan" @bind:event="oninput" />
+    <div class="chord-entry">
+        <label for="chord-name">Chord</label>
+        <div class="chord-entry-row">
+            <input id="chord-name" @bind="ChordText" @bind:event="oninput" placeholder="e.g. C/D or Fmaj7" />
+            <button type="submit">Show voicings</button>
+        </div>
+    </div>
+
+    <div class="fret-span-control">
+        <label for="fret-span">Fret span</label>
+        <input id="fret-span" type="number" min="1" max="12" step="1" @bind="FretSpan" @bind:event="oninput" />
+    </div>
+
     <fieldset class="fret-range-filter">
-        <legend>Lowest fretted fret</legend>
-        <label for="minimum-lowest-fret">From</label>
-        <input id="minimum-lowest-fret" type="number" min="0" max="22" step="1" @bind="MinimumLowestFret" @bind:event="oninput" />
-        <label for="maximum-lowest-fret">To</label>
-        <input id="maximum-lowest-fret" type="number" min="0" max="22" step="1" @bind="MaximumLowestFret" @bind:event="oninput" />
+        <legend>Lowest fret</legend>
+        <label for="minimum-lowest-fret">
+            <span>From</span>
+            <input id="minimum-lowest-fret" type="number" min="0" max="22" step="1" @bind="MinimumLowestFret" @bind:event="oninput" />
+        </label>
+        <label for="maximum-lowest-fret">
+            <span>To</span>
+            <input id="maximum-lowest-fret" type="number" min="0" max="22" step="1" @bind="MaximumLowestFret" @bind:event="oninput" />
+        </label>
     </fieldset>
-    <label for="triad-only">Triad voicings (3 notes on consecutive strings)</label>
-    <input id="triad-only" type="checkbox" @bind="OnlyConsecutiveTriadVoicings" />
-    <label for="show-note-names">Show note names</label>
-    <input id="show-note-names" type="checkbox" @bind="ShowNoteNames" />
-    <button type="submit">Show voicings</button>
+
+    <fieldset class="display-controls">
+        <legend>Display</legend>
+        <label for="triad-only">
+            <input id="triad-only" type="checkbox" @bind="OnlyConsecutiveTriadVoicings" />
+            <span>Consecutive triads</span>
+        </label>
+        <label for="show-note-names">
+            <input id="show-note-names" type="checkbox" @bind="ShowNoteNames" />
+            <span>Note names</span>
+        </label>
+    </fieldset>
 </form>
 
 @if (!string.IsNullOrWhiteSpace(ErrorMessage))
