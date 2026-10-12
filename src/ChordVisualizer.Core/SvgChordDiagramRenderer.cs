@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Xml.Linq;
 
-namespace ChordVisualizer.Core;
+namespace AppliedHyperkinetics.ChordVisualizer.Core;
 
 public static class SvgChordDiagramRenderer
 {

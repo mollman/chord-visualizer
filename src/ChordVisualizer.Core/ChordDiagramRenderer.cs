@@ -1,8 +1,8 @@
 using System;
 using System.Text;
-using ChordVisualizer.Core.Voicings;
+using AppliedHyperkinetics.ChordVisualizer.Core.Voicings;
 
-namespace ChordVisualizer.Core;
+namespace AppliedHyperkinetics.ChordVisualizer.Core;
 
 public static class ChordDiagramRenderer
 {

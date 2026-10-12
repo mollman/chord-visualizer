@@ -1,6 +1,6 @@
-﻿using ChordVisualizer.Core;
+﻿using AppliedHyperkinetics.ChordVisualizer.Core;
 
-namespace ChordVisualizer.Tests;
+namespace AppliedHyperkinetics.ChordVisualizer.Tests;
 
 public class ChordSymbolTests
 {

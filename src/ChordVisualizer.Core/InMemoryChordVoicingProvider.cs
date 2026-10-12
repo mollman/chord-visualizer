@@ -1,6 +1,6 @@
 using System;
 
-namespace ChordVisualizer.Core;
+namespace AppliedHyperkinetics.ChordVisualizer.Core;
 
 public sealed class InMemoryChordVoicingProvider : IChordVoicingProvider
 {

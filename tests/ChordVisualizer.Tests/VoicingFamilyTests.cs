@@ -1,7 +1,7 @@
-using ChordVisualizer.Core;
-using ChordVisualizer.Core.Voicings;
+using AppliedHyperkinetics.ChordVisualizer.Core;
+using AppliedHyperkinetics.ChordVisualizer.Core.Voicings;
 
-namespace ChordVisualizer.Tests;
+namespace AppliedHyperkinetics.ChordVisualizer.Tests;
 
 public class VoicingFamilyTests
 {
@@ -142,6 +142,90 @@ public class VoicingFamilyTests
     }
 
     [Fact]
+    public void GenerateVoicings_CommonScopeIsAPlayableSubsetOfAllScope()
+    {
+        var generator = new VoicingGenerator();
+        var chord = ChordSymbol.Parse("Emaj7");
+        var common = generator.GenerateVoicings(chord, scope: VoicingGenerationScope.Common);
+        var all = generator.GenerateVoicings(chord, scope: VoicingGenerationScope.All);
+        var allSignatures = all.Select(GetVoicingSignature).ToHashSet(StringComparer.Ordinal);
+
+        Assert.NotEmpty(common);
+        Assert.True(common.Count < all.Count);
+        Assert.All(common, voicing =>
+        {
+            Assert.Contains(GetVoicingSignature(voicing), allSignatures);
+            Assert.True(IsCommonlyPlayable(voicing));
+        });
+    }
+
+    [Theory]
+    [InlineData(TriadInversion.RootPosition, PitchClass.C)]
+    [InlineData(TriadInversion.FirstInversion, PitchClass.E)]
+    [InlineData(TriadInversion.SecondInversion, PitchClass.G)]
+    public void GenerateVoicingFamilies_TriadInversionsHaveTheSelectedBass(
+        TriadInversion inversion,
+        PitchClass expectedBass)
+    {
+        var families = new VoicingGenerator().GenerateVoicingFamilies(
+            ChordSymbol.Parse("C"),
+            triadOnly: true,
+            inversion: inversion);
+        var voicings = families
+            .SelectMany(family => new[] { family.BestVoicing }.Concat(family.Alternatives))
+            .ToList();
+
+        Assert.NotEmpty(voicings);
+        Assert.All(voicings, voicing =>
+        {
+            Assert.Equal(expectedBass, GetBassPitch(voicing));
+            Assert.True(ChordVoicingFilters.MatchesTriad(voicing, inversion));
+        });
+    }
+
+    [Fact]
+    public void GenerateVoicingFamilies_AdjacentTriadsRequireThreeNeighboringStrings()
+    {
+        var families = new VoicingGenerator().GenerateVoicingFamilies(
+            ChordSymbol.Parse("C"),
+            triadOnly: true);
+        var voicings = families
+            .SelectMany(family => new[] { family.BestVoicing }.Concat(family.Alternatives));
+
+        Assert.NotEmpty(families);
+        Assert.All(voicings, voicing =>
+        {
+            var strings = voicing.Positions
+                .Where(position => position.State is StringPlayState.Open or StringPlayState.Fretted)
+                .Select(position => position.StringIndex)
+                .Order()
+                .ToArray();
+            Assert.Equal(3, strings.Length);
+            Assert.Equal(strings[0] + 1, strings[1]);
+            Assert.Equal(strings[1] + 1, strings[2]);
+        });
+    }
+
+    [Fact]
+    public void GenerateVoicingFamilies_TriadInversionRejectsNonTriadChordsAndConflictingSlashBass()
+    {
+        var generator = new VoicingGenerator();
+
+        Assert.Empty(generator.GenerateVoicingFamilies(
+            ChordSymbol.Parse("Emaj7"),
+            triadOnly: true,
+            inversion: TriadInversion.RootPosition));
+        Assert.Empty(generator.GenerateVoicingFamilies(
+            ChordSymbol.Parse("C/E"),
+            triadOnly: true,
+            inversion: TriadInversion.RootPosition));
+        Assert.NotEmpty(generator.GenerateVoicingFamilies(
+            ChordSymbol.Parse("C/G"),
+            triadOnly: true,
+            inversion: TriadInversion.SecondInversion));
+    }
+
+    [Fact]
     public void BuildFamilies_PrioritizesAllCuratedEmaj7PositionsAndRetainsGeneratedFamilies()
     {
         using var provider = new ChordsDbChordVoicingProvider();
@@ -195,5 +279,33 @@ public class VoicingFamilyTests
         return FretboardPitchMap.GetPitchClass(
             lowestSoundingPosition.StringIndex,
             lowestSoundingPosition.Fret!.Value);
+    }
+
+    private static bool IsCommonlyPlayable(ChordVoicing voicing)
+    {
+        var fretted = voicing.Positions
+            .Where(position => position.State == StringPlayState.Fretted)
+            .ToArray();
+        if (fretted.Length <= 4)
+            return true;
+
+        for (var start = 0; start < voicing.Positions.Count; start++)
+        {
+            var first = voicing.Positions[start];
+            if (first.State != StringPlayState.Fretted)
+                continue;
+
+            for (var end = start + 1; end < voicing.Positions.Count; end++)
+            {
+                var last = voicing.Positions[end];
+                if (last.State != StringPlayState.Fretted || last.Fret < first.Fret)
+                    break;
+
+                if (fretted.Length - (end - start) <= 4)
+                    return true;
+            }
+        }
+
+        return false;
     }
 }

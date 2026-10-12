@@ -1,7 +1,7 @@
-using ChordVisualizer.Core;
+using AppliedHyperkinetics.ChordVisualizer.Core;
 using System.Text.Json;
 
-namespace ChordVisualizer.Tests;
+namespace AppliedHyperkinetics.ChordVisualizer.Tests;
 
 public class ChordsDbChordVoicingProviderTests
 {
@@ -47,7 +47,7 @@ public class ChordsDbChordVoicingProviderTests
     {
         using var provider = new ChordsDbChordVoicingProvider();
         using var stream = typeof(ChordsDbChordVoicingProvider).Assembly
-            .GetManifestResourceStream("ChordVisualizer.Core.Data.chords-db-guitar.json")!;
+            .GetManifestResourceStream("AppliedHyperkinetics.ChordVisualizer.Core.Data.chords-db-guitar.json")!;
         using var database = JsonDocument.Parse(stream);
         var chordRoots = database.RootElement.GetProperty("chords");
         var chordCount = 0;

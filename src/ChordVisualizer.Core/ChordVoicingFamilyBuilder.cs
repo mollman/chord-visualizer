@@ -1,4 +1,4 @@
-namespace ChordVisualizer.Core;
+namespace AppliedHyperkinetics.ChordVisualizer.Core;
 
 public static class ChordVoicingFamilyBuilder
 {

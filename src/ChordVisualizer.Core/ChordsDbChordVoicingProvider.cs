@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
 
-namespace ChordVisualizer.Core;
+namespace AppliedHyperkinetics.ChordVisualizer.Core;
 
 public sealed class ChordsDbChordVoicingProvider : IChordVoicingProvider, IDisposable
 {
@@ -10,7 +10,7 @@ public sealed class ChordsDbChordVoicingProvider : IChordVoicingProvider, IDispo
     public ChordsDbChordVoicingProvider()
     {
         var stream = Assembly.GetExecutingAssembly()
-            .GetManifestResourceStream("ChordVisualizer.Core.Data.chords-db-guitar.json")
+            .GetManifestResourceStream("AppliedHyperkinetics.ChordVisualizer.Core.Data.chords-db-guitar.json")
             ?? throw new InvalidOperationException("The curated guitar chord database resource is missing.");
         _database = JsonDocument.Parse(stream);
     }
