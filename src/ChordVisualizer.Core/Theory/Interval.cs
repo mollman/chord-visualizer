@@ -1,4 +1,4 @@
-namespace ChordVisualizer.Core.Theory;
+namespace AppliedHyperkinetics.ChordVisualizer.Core.Theory;
 
 public sealed class Interval
 {

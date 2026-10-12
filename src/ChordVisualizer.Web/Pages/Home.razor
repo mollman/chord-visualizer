@@ -1,15 +1,41 @@
 ﻿@page "/"
-@using ChordVisualizer.Core
-@using ChordVisualizer.Core.Voicings
+@using AppliedHyperkinetics.ChordVisualizer.Core
+@using AppliedHyperkinetics.ChordVisualizer.Core.Voicings
 @inject IChordVoicingProvider VoicingProvider
 
 <PageTitle>Chord Visualizer</PageTitle>
 
+<div class="chord-visualizer-page" @onclick="DismissAllHelpTooltips">
 <h1>Chord Visualizer</h1>
 
 <form class="sticky-chord-controls" @onsubmit="ShowChord" @onsubmit:preventDefault>
     <div class="chord-entry">
-        <label for="chord-name">Chord</label>
+        <div class="label-help-row">
+            <label for="chord-name">Chord</label>
+            <button type="button"
+                    class="info-button"
+                    aria-label="About chord names"
+                    aria-expanded="@ShowChordHelp"
+                    aria-controls="chord-name-help"
+                    @onclick="ToggleChordHelp"
+                    @onclick:stopPropagation>i</button>
+            @if (ShowChordHelp)
+            {
+                <div id="chord-name-help" class="help-popover chord-help-popover" role="note" @onclick:stopPropagation>
+                    <button type="button"
+                            class="help-close"
+                            aria-label="Close chord name help"
+                            @onclick="() => ShowChordHelp = false">×</button>
+                    <p>Enter a note name followed by an optional chord type:</p>
+                    <ul>
+                        <li>Roots: A–G, optionally with <code>#</code> or <code>b</code> (for example, <code>C#</code> or <code>Db</code>). Write <code>Db</code> for D-flat; <code>Dflat</code> is not supported.</li>
+                        <li>Common types: major (<code>C</code> or <code>Cmaj</code>), minor (<code>Dm</code> or <code>Dmin</code>), seventh (<code>G7</code>), major seventh (<code>Fmaj7</code>), minor seventh (<code>Am7</code>), add-nine (<code>Cadd9</code>), or suspended fourth (<code>Dsus4</code>).</li>
+                        <li>Slash chords specify a bass note, for example <code>C/E</code>.</li>
+                    </ul>
+                    <p>Other chord types may show curated voicings when they are available in the chord library.</p>
+                </div>
+            }
+        </div>
         <div class="chord-entry-row">
             <input id="chord-name" @bind="ChordText" @bind:event="oninput" placeholder="e.g. C/D or Fmaj7" />
             <button type="submit">Show voicings</button>
@@ -17,12 +43,52 @@
     </div>
 
     <div class="fret-span-control">
-        <label for="fret-span">Fret span</label>
+        <div class="label-help-row">
+            <label for="fret-span">Fret span</label>
+            <button type="button"
+                    class="info-button"
+                    aria-label="About fret span"
+                    aria-expanded="@ShowFretSpanHelp"
+                    aria-controls="fret-span-help"
+                    @onclick="ToggleFretSpanHelp"
+                    @onclick:stopPropagation>i</button>
+            @if (ShowFretSpanHelp)
+            {
+                <div id="fret-span-help" class="help-popover" role="note" @onclick:stopPropagation>
+                    <button type="button"
+                            class="help-close"
+                            aria-label="Close fret span help"
+                            @onclick="() => ShowFretSpanHelp = false">×</button>
+                    <p>Fret span limits how far apart the fretted notes in a voicing can be. A span of 4 allows notes across four consecutive fret positions, such as frets 1–4. Open strings do not count toward the span.</p>
+                </div>
+            }
+        </div>
         <input id="fret-span" type="number" min="1" max="12" step="1" @bind="FretSpan" @bind:event="oninput" />
     </div>
 
     <fieldset class="fret-range-filter">
-        <legend>Lowest fret</legend>
+        <legend>
+            <span class="label-help-row">
+                Lowest starting fret
+                <button type="button"
+                        class="info-button"
+                        aria-label="About lowest starting fret"
+                        aria-expanded="@ShowLowestStartingFretHelp"
+                        aria-controls="lowest-starting-fret-help"
+                        @onclick="ToggleLowestStartingFretHelp"
+                        @onclick:stopPropagation>i</button>
+                @if (ShowLowestStartingFretHelp)
+                {
+                    <span id="lowest-starting-fret-help" class="help-popover" role="note" @onclick:stopPropagation>
+                        <button type="button"
+                                class="help-close"
+                                aria-label="Close lowest starting fret help"
+                                @onclick="() => ShowLowestStartingFretHelp = false">×</button>
+                        <span>Filters by the starting fret shown on each voicing diagram, not by the lowest-pitched note. The From and To limits are inclusive; open-position voicings commonly start at fret 1.</span>
+                    </span>
+                }
+            </span>
+        </legend>
         <label for="minimum-lowest-fret">
             <span>From</span>
             <input id="minimum-lowest-fret" type="number" min="0" max="22" step="1" @bind="MinimumLowestFret" @bind:event="oninput" />
@@ -35,13 +101,117 @@
 
     <fieldset class="display-controls">
         <legend>Display</legend>
-        <label for="triad-only">
-            <input id="triad-only" type="checkbox" @bind="OnlyConsecutiveTriadVoicings" />
-            <span>Consecutive triads</span>
-        </label>
-        <label for="show-note-names">
-            <input id="show-note-names" type="checkbox" @bind="ShowNoteNames" />
-            <span>Note names</span>
+        <div class="display-help-control">
+            <label for="include-generated">
+                <input id="include-generated" type="checkbox" @bind="IncludeGeneratedVoicings" />
+                <span>Include generated voicings</span>
+            </label>
+            <button type="button"
+                    class="info-button"
+                    aria-label="About generated voicings"
+                    aria-expanded="@ShowGeneratedVoicingsHelp"
+                    aria-controls="generated-voicings-help"
+                    @onclick="ToggleGeneratedVoicingsHelp"
+                    @onclick:stopPropagation>i</button>
+            @if (ShowGeneratedVoicingsHelp)
+            {
+                <div id="generated-voicings-help" class="help-popover" role="note" @onclick:stopPropagation>
+                    <button type="button"
+                            class="help-close"
+                            aria-label="Close generated voicings help"
+                            @onclick="() => ShowGeneratedVoicingsHelp = false">×</button>
+                    <p>A curated library provides common chord voicings. Turn this on to expand the dsiplayed results with voicings generated from the chord's notes. Choose <strong>Common</strong> for a more playable subset or <strong>All</strong> to include every generated voicing that meets the fret filters.</p>
+                </div>
+            }
+        </div>
+        <div class="display-help-control">
+            <label for="show-note-names">
+                <input id="show-note-names" type="checkbox" @bind="ShowNoteNames" />
+                <span>Note names</span>
+            </label>
+            <button type="button"
+                    class="info-button"
+                    aria-label="About note names"
+                    aria-expanded="@ShowNoteNamesHelp"
+                    aria-controls="note-names-help"
+                    @onclick="ToggleNoteNamesHelp"
+                    @onclick:stopPropagation>i</button>
+            @if (ShowNoteNamesHelp)
+            {
+                <div id="note-names-help" class="help-popover" role="note" @onclick:stopPropagation>
+                    <button type="button"
+                            class="help-close"
+                            aria-label="Close note names help"
+                            @onclick="() => ShowNoteNamesHelp = false">×</button>
+                    <p>Toggle between showing note names and finger positions on the chord diagram. Finger positions appear when fingering information is available for that voicing.</p>
+                </div>
+            }
+        </div>
+    </fieldset>
+
+    <fieldset class="voicing-source-controls">
+        <legend>Generated voicings</legend>
+        <div class="display-help-control">
+            <label for="generation-scope">
+                <span>Scope</span>
+                <select id="generation-scope" @bind="GenerationScope" disabled="@(!IncludeGeneratedVoicings)">
+                    <option value="@VoicingGenerationScope.Common">Common</option>
+                    <option value="@VoicingGenerationScope.All">All</option>
+                </select>
+            </label>
+            <button type="button"
+                    class="info-button"
+                    aria-label="About generated voicing scope"
+                    aria-expanded="@ShowGenerationScopeHelp"
+                    aria-controls="generation-scope-help"
+                    @onclick="ToggleGenerationScopeHelp"
+                    @onclick:stopPropagation>i</button>
+            @if (ShowGenerationScopeHelp)
+            {
+                <div id="generation-scope-help" class="help-popover" role="note" @onclick:stopPropagation>
+                    <button type="button"
+                            class="help-close"
+                            aria-label="Close generated voicing scope help"
+                            @onclick="() => ShowGenerationScopeHelp = false">×</button>
+                    <p><strong>Common</strong> shows generated voicings that fit a conservative fretting-hand playability filter. <strong>All</strong> includes every generated voicing that matches the selected chord and filters. This setting only affects generated voicings; curated voicings are unchanged. It applies when <strong>Include generated voicings</strong> is on.</p>
+                </div>
+            }
+        </div>
+    </fieldset>
+
+    <fieldset class="triad-controls">
+        <legend>Triads</legend>
+        <div class="display-help-control">
+            <label for="triad-only">
+                <input id="triad-only" type="checkbox" @bind="TriadOnly" @bind:after="OnTriadOnlyChanged" />
+                <span>Triads only</span>
+            </label>
+            <button type="button"
+                    class="info-button"
+                    aria-label="About triad filtering"
+                    aria-expanded="@ShowTriadHelp"
+                    aria-controls="triad-help"
+                    @onclick="ToggleTriadHelp"
+                    @onclick:stopPropagation>i</button>
+            @if (ShowTriadHelp)
+            {
+                <div id="triad-help" class="help-popover" role="note" @onclick:stopPropagation>
+                    <button type="button"
+                            class="help-close"
+                            aria-label="Close triad filtering help"
+                            @onclick="() => ShowTriadHelp = false">×</button>
+                    <p>Shows only voicings with exactly three chord tones, played on three adjacent strings. Enabling this also turns on <strong>Include generated voicings</strong> so generated triads can appear. Use the inversion menu to choose which chord tone is in the bass.</p>
+                </div>
+            }
+        </div>
+        <label for="triad-inversion">
+            <span>Inversion</span>
+            <select id="triad-inversion" @bind="SelectedTriadInversion" disabled="@(!TriadOnly)">
+                <option value="">Any</option>
+                <option value="@TriadInversion.RootPosition">Root position</option>
+                <option value="@TriadInversion.FirstInversion">First inversion</option>
+                <option value="@TriadInversion.SecondInversion">Second inversion</option>
+            </select>
         </label>
     </fieldset>
 </form>
@@ -100,14 +270,25 @@ else if (VoicingFamilies is { Count: 0 })
 {
     <p>No voicings match these filters.</p>
 }
+</div>
 
 @code {
     private string ChordText { get; set; } = "C";
-    private int FretSpan { get; set; } = 5;
+    private bool ShowChordHelp { get; set; }
+    private bool ShowGeneratedVoicingsHelp { get; set; }
+    private int FretSpan { get; set; } = 4;
+    private bool ShowFretSpanHelp { get; set; }
     private int MinimumLowestFret { get; set; }
-    private int MaximumLowestFret { get; set; } = 22;
-    private bool OnlyConsecutiveTriadVoicings { get; set; }
+    private int MaximumLowestFret { get; set; } = 12;
+    private bool ShowLowestStartingFretHelp { get; set; }
+    private bool IncludeGeneratedVoicings { get; set; }
+    private VoicingGenerationScope GenerationScope { get; set; } = VoicingGenerationScope.Common;
+    private bool ShowGenerationScopeHelp { get; set; }
+    private bool TriadOnly { get; set; }
+    private bool ShowTriadHelp { get; set; }
+    private TriadInversion? SelectedTriadInversion { get; set; }
     private bool ShowNoteNames { get; set; }
+    private bool ShowNoteNamesHelp { get; set; }
     private IReadOnlyList<ChordVoicingFamily>? VoicingFamilies { get; set; }
     private HashSet<ChordVoicingFamily> ExpandedFamilies { get; } = new();
     private string? ErrorMessage { get; set; }
@@ -115,6 +296,58 @@ else if (VoicingFamilies is { Count: 0 })
     protected override void OnInitialized()
     {
         ShowChord();
+    }
+
+    private void ToggleFretSpanHelp()
+    {
+        ShowFretSpanHelp = !ShowFretSpanHelp;
+    }
+
+    private void ToggleChordHelp()
+    {
+        ShowChordHelp = !ShowChordHelp;
+    }
+
+    private void ToggleLowestStartingFretHelp()
+    {
+        ShowLowestStartingFretHelp = !ShowLowestStartingFretHelp;
+    }
+
+    private void ToggleGeneratedVoicingsHelp()
+    {
+        ShowGeneratedVoicingsHelp = !ShowGeneratedVoicingsHelp;
+    }
+
+    private void ToggleGenerationScopeHelp()
+    {
+        ShowGenerationScopeHelp = !ShowGenerationScopeHelp;
+    }
+
+    private void ToggleNoteNamesHelp()
+    {
+        ShowNoteNamesHelp = !ShowNoteNamesHelp;
+    }
+
+    private void ToggleTriadHelp()
+    {
+        ShowTriadHelp = !ShowTriadHelp;
+    }
+
+    private void DismissAllHelpTooltips()
+    {
+        ShowChordHelp = false;
+        ShowFretSpanHelp = false;
+        ShowLowestStartingFretHelp = false;
+        ShowGeneratedVoicingsHelp = false;
+        ShowNoteNamesHelp = false;
+        ShowGenerationScopeHelp = false;
+        ShowTriadHelp = false;
+    }
+
+    private void OnTriadOnlyChanged()
+    {
+        if (TriadOnly)
+            IncludeGeneratedVoicings = true;
     }
 
     private void ShowChord()
@@ -129,14 +362,16 @@ else if (VoicingFamilies is { Count: 0 })
 
             var chord = ChordSymbol.Parse(ChordText);
             var curatedVoicings = GetCuratedVoicings(chord);
-            var generatedVoicings = chord.Quality == ChordQuality.Other
+            var generatedVoicings = !IncludeGeneratedVoicings || chord.Quality == ChordQuality.Other
                 ? Array.Empty<ChordVoicing>()
                 : new VoicingGenerator { MaxFretSpan = FretSpan - 1 }
                     .GenerateVoicingFamilies(
                     chord,
                     MinimumLowestFret,
                     MaximumLowestFret,
-                    OnlyConsecutiveTriadVoicings)
+                    scope: GenerationScope,
+                    triadOnly: TriadOnly,
+                    inversion: TriadOnly ? SelectedTriadInversion : null)
                     .SelectMany(family => new[] { family.BestVoicing }.Concat(family.Alternatives));
             VoicingFamilies = ChordVoicingFamilyBuilder.Build(generatedVoicings, curatedVoicings);
 
@@ -157,7 +392,11 @@ else if (VoicingFamilies is { Count: 0 })
             .Where(voicing => voicing.DisplayStartFret >= MinimumLowestFret &&
                               voicing.DisplayStartFret <= MaximumLowestFret)
             .Where(IsWithinFretSpan)
-            .Where(voicing => !OnlyConsecutiveTriadVoicings || IsConsecutiveTriad(voicing))
+            .Where(voicing =>
+                !TriadOnly ||
+                ChordVoicingFilters.MatchesTriad(
+                    voicing,
+                    SelectedTriadInversion))
             .ToList();
     }
 
@@ -169,19 +408,6 @@ else if (VoicingFamilies is { Count: 0 })
             .ToArray();
 
         return frets.Length == 0 || frets.Max() - frets.Min() <= FretSpan - 1;
-    }
-
-    private static bool IsConsecutiveTriad(ChordVoicing voicing)
-    {
-        var stringIndexes = voicing.Positions
-            .Where(position => position.State is StringPlayState.Open or StringPlayState.Fretted)
-            .Select(position => position.StringIndex)
-            .Order()
-            .ToArray();
-
-        return stringIndexes.Length == 3 &&
-               stringIndexes[1] == stringIndexes[0] + 1 &&
-               stringIndexes[2] == stringIndexes[1] + 1;
     }
 
     private void ToggleAlternatives(ChordVoicingFamily family)

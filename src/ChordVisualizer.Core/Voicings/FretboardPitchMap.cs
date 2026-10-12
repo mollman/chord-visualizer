@@ -1,4 +1,4 @@
-namespace ChordVisualizer.Core.Voicings;
+namespace AppliedHyperkinetics.ChordVisualizer.Core.Voicings;
 
 public static class FretboardPitchMap
 {

@@ -1,7 +1,7 @@
-using ChordVisualizer.Core;
-using ChordVisualizer.Core.Voicings;
+using AppliedHyperkinetics.ChordVisualizer.Core;
+using AppliedHyperkinetics.ChordVisualizer.Core.Voicings;
 
-namespace ChordVisualizer.Tests;
+namespace AppliedHyperkinetics.ChordVisualizer.Tests;
 
 public class ChordDiagramRendererTests
 {

@@ -50,6 +50,93 @@
     min-width: 0;
 }
 
+.label-help-row {
+    align-items: center;
+    display: flex;
+    gap: 0.4rem;
+    position: relative;
+}
+
+.info-button,
+.help-close {
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--control-accent);
+    color: var(--control-accent);
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.info-button {
+    border-radius: 50%;
+    font: inherit;
+    font-size: 0.7rem;
+    font-weight: 700;
+    height: 1rem;
+    line-height: 1;
+    padding: 0;
+    width: 1rem;
+}
+
+.help-popover {
+    background: #fff;
+    border: 1px solid var(--control-border);
+    border-radius: 6px;
+    box-sizing: border-box;
+    box-shadow: 0 6px 18px rgb(28 54 45 / 18%);
+    color: var(--control-ink);
+    font-size: 0.82rem;
+    font-weight: 400;
+    line-height: 1.45;
+    left: auto;
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+    max-width: calc(100vw - 3rem);
+    overflow-y: auto;
+    padding: 0.7rem 2rem 0.7rem 0.75rem;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.45rem);
+    width: min(19rem, calc(100vw - 3rem));
+    z-index: 10;
+}
+
+.help-popover p {
+    margin: 0;
+}
+
+.chord-help-popover {
+    width: min(25rem, calc(100vw - 3rem));
+}
+
+.chord-help-popover ul {
+    margin: 0.4rem 0;
+    padding-left: 1.2rem;
+}
+
+.chord-help-popover li + li {
+    margin-top: 0.25rem;
+}
+
+.help-close {
+    border-radius: 4px;
+    font-size: 1rem;
+    height: 1.35rem;
+    line-height: 1;
+    padding: 0;
+    position: absolute;
+    right: 0.35rem;
+    top: 0.35rem;
+    width: 1.35rem;
+}
+
+.info-button:focus-visible,
+.help-close:focus-visible {
+    outline: 3px solid rgb(20 118 106 / 28%);
+    outline-offset: 2px;
+}
+
 .chord-entry-row {
     display: grid;
     gap: 0.5rem;
@@ -83,7 +170,9 @@
 }
 
 .fret-range-filter,
-.display-controls {
+.display-controls,
+.voicing-source-controls,
+.triad-controls {
     align-items: center;
     border: 0;
     border-left: 1px solid #d5dfda;
@@ -95,10 +184,16 @@
 }
 
 .fret-range-filter legend,
-.display-controls legend {
+.display-controls legend,
+.voicing-source-controls legend,
+.triad-controls legend {
     float: none;
     margin: 0 0 0.35rem;
     padding: 0;
+    width: 100%;
+}
+
+.fret-range-filter legend .label-help-row {
     width: 100%;
 }
 
@@ -118,6 +213,31 @@
     width: 100%;
 }
 
+.voicing-source-controls,
+.triad-controls {
+    align-content: center;
+    flex-wrap: wrap;
+}
+
+.voicing-source-controls label,
+.triad-controls label {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.4rem;
+    white-space: nowrap;
+}
+
+.sticky-chord-controls select {
+    background: #fff;
+    border: 1px solid var(--control-border);
+    border-radius: 5px;
+    box-sizing: border-box;
+    color: var(--control-ink);
+    font: inherit;
+    min-height: 2.2rem;
+    padding: 0.25rem 0.45rem;
+}
+
 .display-controls {
     align-content: center;
     flex-wrap: wrap;
@@ -135,7 +255,15 @@
     white-space: nowrap;
 }
 
-.display-controls input[type="checkbox"] {
+.display-help-control {
+    align-items: center;
+    display: flex;
+    gap: 0.4rem;
+    position: relative;
+}
+
+.display-controls input[type="checkbox"],
+.triad-controls input[type="checkbox"] {
     accent-color: var(--control-accent);
     height: 1rem;
     margin: 0;
@@ -192,7 +320,9 @@
     }
 
     .chord-entry,
-    .display-controls {
+    .display-controls,
+    .voicing-source-controls,
+    .triad-controls {
         grid-column: 1 / -1;
     }
 
@@ -205,6 +335,16 @@
 
     .display-controls {
         gap: 0.6rem 1.1rem;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .voicing-source-controls,
+    .triad-controls {
+        border-left: 0;
+        border-top: 1px solid #d5dfda;
+        gap: 0.6rem 1.1rem;
+        padding: 0.7rem 0 0;
     }
 
     .voicing-families-table,
@@ -235,6 +375,37 @@
         justify-content: flex-start;
         padding: 0.65rem 0 0;
     }
+
+    .voicing-source-controls,
+    .triad-controls {
+        border-left: 0;
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+        padding: 0.65rem 0 0;
+    }
+}
+
+@media (max-width: 1120px) {
+    .display-controls .display-help-control,
+    .voicing-source-controls .display-help-control,
+    .triad-controls .display-help-control {
+        width: 100%;
+    }
+
+    .chord-entry .help-popover,
+    .display-help-control .help-popover,
+    .voicing-source-controls .help-popover,
+    .triad-controls .help-popover {
+        left: 0;
+        right: auto;
+    }
+}
+
+@media (max-width: 700px) {
+    .fret-span-control .help-popover {
+        left: 0;
+        right: auto;
+    }
 }
 
 @media (max-width: 380px) {
@@ -243,7 +414,9 @@
     }
 
     .chord-entry,
-    .display-controls {
+    .display-controls,
+    .voicing-source-controls,
+    .triad-controls {
         grid-column: auto;
     }
 

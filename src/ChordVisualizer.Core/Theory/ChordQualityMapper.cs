@@ -1,6 +1,6 @@
 using System;
 
-namespace ChordVisualizer.Core.Theory;
+namespace AppliedHyperkinetics.ChordVisualizer.Core.Theory;
 
 public static class ChordQualityMapper
 {
