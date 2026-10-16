@@ -13,7 +13,7 @@
     grid-template-columns: minmax(15rem, 1.45fr) minmax(6rem, 0.42fr) minmax(13rem, 1fr) minmax(15rem, 1.25fr);
     padding: 0.9rem 1rem 1rem;
     position: sticky;
-    top: 3.5rem;
+    top: 0px;
     z-index: 5;
 }
 
@@ -310,6 +310,11 @@
     flex: 0 0 auto;
 }
 
+.voicing-source-controls .help-popover {
+    left: 0;
+    right: auto;
+}
+
 @media (max-width: 700px) {
     .sticky-chord-controls {
         box-shadow: none;
@@ -394,7 +399,6 @@
 
     .chord-entry .help-popover,
     .display-help-control .help-popover,
-    .voicing-source-controls .help-popover,
     .triad-controls .help-popover {
         left: 0;
         right: auto;
