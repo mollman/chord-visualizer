@@ -6,8 +6,7 @@
 <PageTitle>Chord Visualizer</PageTitle>
 
 <div class="chord-visualizer-page" @onclick="DismissAllHelpTooltips">
-<h1>Chord Visualizer</h1>
-
+<h1>Chord Visualizer</h1><img src="img/Logo_ico.png" alt="Chord Visualizer logo" class="logo" />
 <form class="sticky-chord-controls" @onsubmit="ShowChord" @onsubmit:preventDefault>
     <div class="chord-entry">
         <div class="label-help-row">
@@ -173,7 +172,7 @@
                             class="help-close"
                             aria-label="Close generated voicing scope help"
                             @onclick="() => ShowGenerationScopeHelp = false">×</button>
-                    <p><strong>Common</strong> shows generated voicings that fit a conservative fretting-hand playability filter. <strong>All</strong> includes every generated voicing that matches the selected chord and filters. This setting only affects generated voicings; curated voicings are unchanged. It applies when <strong>Include generated voicings</strong> is on.</p>
+                    <p><strong>Common</strong> 2. <strong>All</strong> includes every generated voicing that matches the selected chord and filters. This setting only affects generated voicings; curated voicings are unchanged. It applies when <strong>Include generated voicings</strong> is on.</p>
                 </div>
             }
         </div>
